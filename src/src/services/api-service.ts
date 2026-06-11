@@ -1,7 +1,8 @@
 import StorageService from '@/src/services/storage-service'
 import { OrderType } from '@/src/models/order'
+import { API_BASE_URL } from '@/constants/api'
 
-const BASE_URL = 'http://localhost:3000/api'
+const BASE_URL = API_BASE_URL
 
 async function request(endpoint: string, options: RequestInit = {}) {
   try {

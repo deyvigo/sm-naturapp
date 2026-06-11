@@ -1,25 +1,33 @@
-import React, { useState } from 'react'
-import { View, Text, FlatList, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native'
+import React, { useState, useCallback } from 'react'
+import { FlatList, TextInput, TouchableOpacity, StyleSheet } from 'react-native'
+import { toast } from 'sonner-native'
+import { useFocusEffect } from 'expo-router'
+import { ThemedText } from '@/components/themed-text'
+import { ThemedView } from '@/components/themed-view'
 import { useCart } from '@/src/viewmodels/use-cart'
 import { CartItemRow } from '@/src/components/cart-item-row'
 
 export default function CartScreen() {
-  const { items, total, loading, updateQuantity, removeItem, checkout } = useCart()
+  const { items, total, loading, updateQuantity, removeItem, checkout, refresh } = useCart()
+
+  useFocusEffect(useCallback(() => {
+    refresh()
+  }, [refresh]))
   const [address, setAddress] = useState('')
 
   const handleCheckout = async () => {
     try {
       const order = await checkout(address)
-      Alert.alert('Pedido Creado', `Pedido #${order.id} registrado.`)
+      toast.success(`Pedido #${order.id} registrado.`)
       setAddress('')
     } catch (e: any) {
-      Alert.alert('Error', e?.message)
+      toast.error(e?.message || 'Error al crear pedido')
     }
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Mi Carrito ({items.length} items)</Text>
+    <ThemedView style={styles.container}>
+      <ThemedText style={styles.title}>Mi Carrito ({items.length} items)</ThemedText>
 
       <FlatList
         data={items}
@@ -29,30 +37,30 @@ export default function CartScreen() {
             item={item}
             onIncrease={() => updateQuantity(item.productId, item.quantity + 1)}
             onDecrease={() => updateQuantity(item.productId, item.quantity - 1)}
-            onRemove={() => removeItem(item.productId)}
+            onRemove={() => { removeItem(item.productId); toast.success(`${item.name} eliminado del carrito`) }}
           />
         )}
-        ListEmptyComponent={<Text style={styles.empty}>Tu carrito está vacío</Text>}
+        ListEmptyComponent={<ThemedText style={styles.empty}>Tu carrito está vacío</ThemedText>}
       />
 
       {items.length > 0 && (
-        <View style={styles.footer}>
+        <ThemedView style={styles.footer}>
           <TextInput
             style={styles.addressInput}
             placeholder="Dirección de entrega"
             value={address}
             onChangeText={setAddress}
           />
-          <View style={styles.totalRow}>
-            <Text style={styles.totalLabel}>Total:</Text>
-            <Text style={styles.totalValue}>S/ {total.toFixed(2)}</Text>
-          </View>
+          <ThemedView style={styles.totalRow}>
+            <ThemedText style={styles.totalLabel}>Total:</ThemedText>
+            <ThemedText style={styles.totalValue}>S/ {total.toFixed(2)}</ThemedText>
+          </ThemedView>
           <TouchableOpacity style={styles.checkoutBtn} onPress={handleCheckout}>
-            <Text style={styles.checkoutText}>Realizar Pedido</Text>
+            <ThemedText style={styles.checkoutText}>Realizar Pedido</ThemedText>
           </TouchableOpacity>
-        </View>
+        </ThemedView>
       )}
-    </View>
+    </ThemedView>
   )
 }
 

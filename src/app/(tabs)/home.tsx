@@ -8,6 +8,7 @@ import {
   ScrollView,
   RefreshControl,
 } from 'react-native'
+import { toast } from 'sonner-native'
 import { useProducts } from '@/src/viewmodels/use-products'
 import { useCart } from '@/src/viewmodels/use-cart'
 import ProductCard from '@/src/components/product-card'
@@ -25,9 +26,9 @@ export default function HomeScreen() {
   const handleAddToCart = async (product: Product) => {
     try {
       await addItem(product)
-      alert(`${product.name} agregado al carrito`)
+      toast.success(`${product.name} agregado al carrito`)
     } catch (e: any) {
-      alert(e?.message)
+      toast.error(e?.message || 'Error al agregar')
     }
   }
 

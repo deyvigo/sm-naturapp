@@ -1,5 +1,8 @@
-import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native'
-import { Link } from 'expo-router'
+import { TouchableOpacity, StyleSheet } from 'react-native'
+import Animated from 'react-native-reanimated'
+import { useRouter } from 'expo-router'
+import { ThemedText } from '@/components/themed-text'
+import { ThemedView } from '@/components/themed-view'
 import { Product } from '@/src/models/product'
 
 interface ProductCardProps {
@@ -7,23 +10,48 @@ interface ProductCardProps {
   onAddToCart: () => void
 }
 
+const tag = (id: number) => `product-${id}`
+
 export default function ProductCard({ product, onAddToCart }: ProductCardProps) {
+  const router = useRouter()
+  const id = product.id
+
   return (
-    <View style={styles.card}>
-      <Link href=".." /*{`/product/${product.id}`} */>
-        <Image source={{ uri: product.image }} style={styles.image} />
-      </Link>
-      <Text style={styles.name} numberOfLines={2}>
-        {product.name}
-      </Text>
-      <Text style={styles.category}>{product.category}</Text>
-      <View style={styles.row}>
-        <Text style={styles.price}>{product.getFormattedPrice()}</Text>
+    <ThemedView style={styles.card}>
+      <TouchableOpacity activeOpacity={0.8} onPress={() => router.push(`/product/${id}`)}>
+        <Animated.Image
+          source={{ uri: product.image }}
+          style={styles.image}
+          sharedTransitionTag={`${tag(id)}-image`}
+        />
+        <Animated.Text
+          style={styles.category}
+          sharedTransitionTag={`${tag(id)}-category`}
+        >
+          {product.category}
+        </Animated.Text>
+        <Animated.Text
+          style={styles.name}
+          numberOfLines={2}
+          sharedTransitionTag={`${tag(id)}-name`}
+        >
+          {product.name}
+        </Animated.Text>
+        <Animated.View style={styles.row} sharedTransitionTag={`${tag(id)}-row`}>
+          <Animated.Text
+            style={styles.price}
+            sharedTransitionTag={`${tag(id)}-price`}
+          >
+            {product.getFormattedPrice()}
+          </Animated.Text>
+        </Animated.View>
+      </TouchableOpacity>
+      <ThemedView style={styles.addBtnWrapper}>
         <TouchableOpacity style={styles.addBtn} onPress={onAddToCart}>
-          <Text style={styles.addText}>+</Text>
+          <ThemedText style={styles.addText}>+</ThemedText>
         </TouchableOpacity>
-      </View>
-    </View>
+      </ThemedView>
+    </ThemedView>
   )
 }
 
@@ -34,13 +62,7 @@ const styles = StyleSheet.create({
   category: { fontSize: 11, color: '#888', textTransform: 'capitalize', marginTop: 2 },
   row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 8 },
   price: { fontSize: 16, fontWeight: 'bold', color: '#148F77' },
-  addBtn: {
-    backgroundColor: '#148F77',
-    borderRadius: 16,
-    width: 32,
-    height: 32,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
+  addBtnWrapper: { alignItems: 'flex-end', marginTop: -28 },
+  addBtn: { backgroundColor: '#148F77', borderRadius: 16, width: 32, height: 32, alignItems: 'center', justifyContent: 'center' },
   addText: { color: '#FFF', fontSize: 20, fontWeight: 'bold' },
 })

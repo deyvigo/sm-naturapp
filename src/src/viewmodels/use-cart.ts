@@ -69,8 +69,8 @@ export function useCart() {
       }
       // Enviar a API remota (persistencia remota)
       const order = await ApiService.createOrder({
-        items: items.map(({ id, quantity, name, price }) => ({
-          productId: id,
+        items: items.map(({ productId, quantity, name, price }) => ({
+          productId,
           name,
           price,
           quantity,
