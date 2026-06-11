@@ -14,6 +14,8 @@ import { useCart } from '@/src/viewmodels/use-cart'
 import ProductCard from '@/src/components/product-card'
 import { CategoryChip } from '@/src/components/category-chip'
 import { Product } from '@/src/models/product'
+import { useTheme } from '@/hooks/use-theme'
+import { ThemedView } from '@/components/themed-view'
 
 const CATEGORIES = ['todos', 'superfoods', 'aceites', 'capsulas', 'infusiones', 'miel']
 
@@ -22,6 +24,7 @@ export default function HomeScreen() {
   const { products, loading, error, category, setCategory, searchQuery, setSearchQuery, search, refresh } =
     useProducts()
   const { addItem } = useCart()
+  const theme = useTheme()
 
   const handleAddToCart = async (product: Product) => {
     try {
@@ -33,10 +36,13 @@ export default function HomeScreen() {
   }
 
   return (
-    <View style={styles.container}>
+    <ThemedView type="background" style={styles.container}>
       {/* Barra de búsqueda */}
       <TextInput
-        style={styles.searchBar}
+        style={[
+          styles.searchBar,
+          { backgroundColor: theme.backgroundElement, borderColor: theme.searchInputBorder, color: theme.text },
+        ]}
         placeholder="Buscar productos naturales..."
         value={searchQuery}
         onChangeText={setSearchQuery}
@@ -56,27 +62,29 @@ export default function HomeScreen() {
       </ScrollView>
 
       {/* Lista de productos */}
-      {loading ? (
-        <ActivityIndicator size="large" color="#148F77" />
-      ) : error ? (
-        <Text style={styles.error}>{error}</Text>
-      ) : (
-        <FlatList
-          data={products}
-          numColumns={2}
-          keyExtractor={item => `${item.id}`}
-          renderItem={({ item }) => <ProductCard product={item} onAddToCart={() => handleAddToCart(item)} />}
-          refreshControl={<RefreshControl refreshing={loading} onRefresh={refresh} />}
-        />
-      )}
-    </View>
+      <ThemedView style={{ flex: 1 }}>
+        {loading ? (
+          <ActivityIndicator size="large" color="#148F77" />
+        ) : error ? (
+          <Text style={styles.error}>{error}</Text>
+        ) : (
+          <FlatList
+            data={products}
+            numColumns={2}
+            keyExtractor={item => `${item.id}`}
+            showsVerticalScrollIndicator={false}
+            renderItem={({ item }) => <ProductCard product={item} onAddToCart={() => handleAddToCart(item)} />}
+            refreshControl={<RefreshControl refreshing={loading} onRefresh={refresh} />}
+          />
+        )}
+      </ThemedView>
+    </ThemedView>
   )
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F5F5F5', padding: 12 },
+  container: { flex: 1, padding: 12 },
   searchBar: {
-    backgroundColor: '#FFF',
     borderRadius: 10,
     padding: 12,
     fontSize: 15,
@@ -84,7 +92,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#E0E0E0',
   },
-  categories: { marginBottom: 10, maxHeight: 44, padding: 4, display: 'flex', gap: 10 },
+  categories: { display: 'flex', gap: 10, maxHeight: 40, marginBottom: 4 },
   error: { color: '#E74C3C', textAlign: 'center', marginTop: 40, fontSize: 16 },
-  categoriesContent: { gap: 10, alignItems: 'center', paddingHorizontal: 4 },
+  categoriesContent: { alignItems: 'center', gap: 10 },
 })

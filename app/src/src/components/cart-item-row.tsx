@@ -2,6 +2,8 @@ import { Image, TouchableOpacity, StyleSheet } from 'react-native'
 import { ThemedText } from '@/components/themed-text'
 import { ThemedView } from '@/components/themed-view'
 import { CartItemType } from '@/src/models/cart-item'
+import { useTheme } from '@/hooks/use-theme'
+import { Ionicons } from '@expo/vector-icons'
 
 interface CartItemRowProps {
   item: CartItemType
@@ -11,19 +13,29 @@ interface CartItemRowProps {
 }
 
 export const CartItemRow = ({ item, onIncrease, onDecrease, onRemove }: CartItemRowProps) => {
+  const theme = useTheme()
+
   return (
-    <ThemedView style={styles.container}>
+    <ThemedView style={[styles.container, { backgroundColor: theme.backgroundElement }]}>
       <Image source={{ uri: item.image }} style={styles.image} />
-      <ThemedView style={styles.info}>
-        <ThemedText style={styles.name} numberOfLines={2}>{item.name}</ThemedText>
-        <ThemedText style={styles.price}>S/ {item.price.toFixed(2)}</ThemedText>
-        <ThemedView style={styles.controls}>
-          <TouchableOpacity style={styles.qtyBtn} onPress={onDecrease}>
-            <ThemedText style={styles.qtyBtnText}>−</ThemedText>
+      <ThemedView style={[styles.info, { backgroundColor: theme.backgroundElement }]}>
+        <ThemedText style={styles.name} numberOfLines={2}>
+          {item.name}
+        </ThemedText>
+        <ThemedText themeColor="callToActionButton" style={styles.price}>
+          S/ {item.price.toFixed(2)}
+        </ThemedText>
+        <ThemedView style={[styles.controls, { backgroundColor: theme.backgroundElement }]}>
+          <TouchableOpacity style={[styles.qtyBtn, { backgroundColor: theme.callToActionButton }]} onPress={onDecrease}>
+            <ThemedText style={styles.qtyBtnText}>
+              <Ionicons name="remove" size={20} color={theme.text} />
+            </ThemedText>
           </TouchableOpacity>
           <ThemedText style={styles.qty}>{item.quantity}</ThemedText>
-          <TouchableOpacity style={styles.qtyBtn} onPress={onIncrease}>
-            <ThemedText style={styles.qtyBtnText}>+</ThemedText>
+          <TouchableOpacity style={[styles.qtyBtn, { backgroundColor: theme.callToActionButton }]} onPress={onIncrease}>
+            <ThemedText style={styles.qtyBtnText}>
+              <Ionicons name="add" size={20} color={theme.text} />
+            </ThemedText>
           </TouchableOpacity>
           <TouchableOpacity style={styles.removeBtn} onPress={onRemove}>
             <ThemedText style={styles.removeText}>Eliminar</ThemedText>
@@ -35,15 +47,22 @@ export const CartItemRow = ({ item, onIncrease, onDecrease, onRemove }: CartItem
 }
 
 const styles = StyleSheet.create({
-  container: { flexDirection: 'row', backgroundColor: '#FFF', borderRadius: 12, padding: 12, marginBottom: 10, elevation: 1 },
+  container: { flexDirection: 'row', borderRadius: 12, padding: 12, marginBottom: 10, elevation: 1 },
   image: { width: 70, height: 70, borderRadius: 8 },
   info: { flex: 1, marginLeft: 12, justifyContent: 'center' },
-  name: { fontSize: 15, fontWeight: '600', color: '#333' },
-  price: { fontSize: 16, fontWeight: 'bold', color: '#148F77', marginTop: 4 },
+  name: { fontSize: 15, fontWeight: '600' },
+  price: { fontSize: 16, fontWeight: 'bold', marginTop: 4, opacity: 0.8 },
   controls: { flexDirection: 'row', alignItems: 'center', marginTop: 8 },
-  qtyBtn: { backgroundColor: '#E8F8F5', borderRadius: 16, width: 30, height: 30, alignItems: 'center', justifyContent: 'center' },
-  qtyBtnText: { fontSize: 18, fontWeight: 'bold', color: '#148F77' },
-  qty: { fontSize: 16, fontWeight: '600', marginHorizontal: 12, color: '#333' },
+  qtyBtn: {
+    borderRadius: 16,
+    width: 30,
+    height: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
+    opacity: 0.7,
+  },
+  qtyBtnText: { fontSize: 18, fontWeight: 'bold' },
+  qty: { fontSize: 16, fontWeight: '600', marginHorizontal: 12 },
   removeBtn: { marginLeft: 'auto', paddingHorizontal: 12, paddingVertical: 6 },
   removeText: { fontSize: 13, color: '#E74C3C', fontWeight: '500' },
 })

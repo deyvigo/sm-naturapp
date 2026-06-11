@@ -6,13 +6,17 @@ import { ThemedText } from '@/components/themed-text'
 import { ThemedView } from '@/components/themed-view'
 import { useCart } from '@/src/viewmodels/use-cart'
 import { CartItemRow } from '@/src/components/cart-item-row'
+import { useTheme } from '@/hooks/use-theme'
 
 export default function CartScreen() {
   const { items, total, loading, updateQuantity, removeItem, checkout, refresh } = useCart()
+  const theme = useTheme()
 
-  useFocusEffect(useCallback(() => {
-    refresh()
-  }, [refresh]))
+  useFocusEffect(
+    useCallback(() => {
+      refresh()
+    }, [refresh]),
+  )
   const [address, setAddress] = useState('')
 
   const handleCheckout = async () => {
@@ -37,16 +41,19 @@ export default function CartScreen() {
             item={item}
             onIncrease={() => updateQuantity(item.productId, item.quantity + 1)}
             onDecrease={() => updateQuantity(item.productId, item.quantity - 1)}
-            onRemove={() => { removeItem(item.productId); toast.success(`${item.name} eliminado del carrito`) }}
+            onRemove={() => {
+              removeItem(item.productId)
+              toast.success(`${item.name} eliminado del carrito`)
+            }}
           />
         )}
         ListEmptyComponent={<ThemedText style={styles.empty}>Tu carrito está vacío</ThemedText>}
       />
 
       {items.length > 0 && (
-        <ThemedView style={styles.footer}>
+        <ThemedView style={[styles.footer, { borderTopColor: theme.borderFootCartColor }]}>
           <TextInput
-            style={styles.addressInput}
+            style={[styles.addressInput, { borderColor: theme.searchInputBorder, color: theme.text }]}
             placeholder="Dirección de entrega"
             value={address}
             onChangeText={setAddress}
@@ -55,7 +62,10 @@ export default function CartScreen() {
             <ThemedText style={styles.totalLabel}>Total:</ThemedText>
             <ThemedText style={styles.totalValue}>S/ {total.toFixed(2)}</ThemedText>
           </ThemedView>
-          <TouchableOpacity style={styles.checkoutBtn} onPress={handleCheckout}>
+          <TouchableOpacity
+            style={[styles.checkoutBtn, { backgroundColor: theme.callToActionButton }]}
+            onPress={handleCheckout}
+          >
             <ThemedText style={styles.checkoutText}>Realizar Pedido</ThemedText>
           </TouchableOpacity>
         </ThemedView>
@@ -65,21 +75,19 @@ export default function CartScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F5F5F5', padding: 16 },
+  container: { flex: 1, padding: 16 },
   title: { fontSize: 22, fontWeight: 'bold', color: '#1A5276', marginBottom: 16 },
   empty: { textAlign: 'center', marginTop: 60, fontSize: 16, color: '#999' },
-  footer: { borderTopWidth: 1, borderTopColor: '#E0E0E0', paddingTop: 16 },
+  footer: { borderTopWidth: 1, paddingTop: 16 },
   addressInput: {
-    backgroundColor: '#FFF',
     borderRadius: 8,
     padding: 12,
     borderWidth: 1,
-    borderColor: '#DDD',
     marginBottom: 12,
   },
   totalRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 12 },
-  totalLabel: { fontSize: 18, fontWeight: '600', color: '#333' },
-  totalValue: { fontSize: 20, fontWeight: 'bold', color: '#148F77' },
-  checkoutBtn: { backgroundColor: '#148F77', borderRadius: 10, padding: 16, alignItems: 'center' },
-  checkoutText: { color: '#FFF', fontSize: 16, fontWeight: 'bold' },
+  totalLabel: { fontSize: 18, fontWeight: '600' },
+  totalValue: { fontSize: 20, fontWeight: 'bold' },
+  checkoutBtn: { borderRadius: 10, padding: 16, alignItems: 'center' },
+  checkoutText: { fontSize: 16, fontWeight: 'bold' },
 })
